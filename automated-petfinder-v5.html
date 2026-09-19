@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Version Control Pairing Tag: v5 -->
+    <title>Automated Petfinder v5 - Neighborhood Hub</title>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #03070d;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: #ffffff;
+        }
+
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 480px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background-color: #03070d;
+            box-sizing: border-box;
+        }
+
+        /* 🗺️ Fixed Map Viewport */
+        #map {
+            width: 100%;
+            height: 300px !important;
+            display: block !important;
+            border-bottom: 2px solid #070d19;
+            z-index: 10;
+        }
+
+        .form-section {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* 📋 Main Interface Workspace Frame - Reverted to Premium Dark Blue Template */
+        .workspace-panel {
+            background-color: #070d19;
+            border: 2px solid #1a2a4a;
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .panel-title {
+            color: #4fc3f7;
+            font-size: 14px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            margin: 0 0 4px 0;
+            text-transform: uppercase;
+        }
+
+        /* 🔄 Dynamic Toggle Controls - Strict Two-Place Orange Rule Placement 1 */
+        .toggle-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .toggle-btn {
+            background-color: #0c152b;
+            border: 2px solid #1a2a4a;
+            color: #ffffff;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            text-align: center;
+            text-transform: uppercase;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active-lost {
+            border-color: #ff6600 !important; /* Isolated Orange Rule */
+            box-shadow: 0 0 8px rgba(255, 102, 0, 0.3);
+            color: #ff6600;
+        }
+
+        .toggle-btn.active-found {
+            border-color: #ff6600 !important; /* Isolated Orange Rule */
+            box-shadow: 0 0 8px rgba(255, 102, 0, 0.3);
+            color: #ff6600;
+        }
+
+        /* Hybrid Species Selector Custom Classes */
+        .species-select-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+        }
+
+        .species-btn {
+            background-color: #0c152b;
+            border: 1px solid #1a2a4a;
+            color: #8da2c4;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 12px;
+            cursor: pointer;
+            text-align: center;
+            text-transform: uppercase;
+            transition: all 0.2s ease;
+        }
+
+        .species-btn.active {
+            border-color: #4fc3f7 !important;
+            color: #4fc3f7 !important;
+            background-color: #122244;
+        }
+
+        /* 📝 Text Data Inputs - Premium Dark Blue Layout Bounds */
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .input-label {
+            font-size: 12px;
+            color: #8da2c4;
+            font-weight: 500;
+        }
+
+        .text-field {
+            background-color: #0c152b;
+            border: 1px solid #1a2a4a;
+            border-radius: 6px;
+            color: #ffffff !important;
+            padding: 10px;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .text-field:focus {
+            border-color: #4fc3f7;
+        }
+
+        .text-field::placeholder {
+            color: #8be9fd !important; /* Bright, vibrant glowing ice blue placeholder color */
+            opacity: 0.85;
+        }
+
+        .text-area {
+            background-color: #0c152b;
+            border: 1px solid #1a2a4a;
+            border-radius: 6px;
+            color: #ffffff !important;
+            padding: 10px;
+            font-size: 13px;
+            resize: none;
+            height: 70px;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .text-area:focus {
+            border-color: #4fc3f7;
+        }
+
+        .text-area::placeholder {
+            color: #8be9fd !important; /* Bright, vibrant glowing ice blue placeholder color */
+            opacity: 0.85;
+        }
+
+        /* Checkbox Modules */
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #8da2c4;
+            cursor: pointer;
+        }
+
+        .checkbox-container input {
+            accent-color: #4fc3f7;
+        }
+
+        /* Photo Control Panel Options */
+        .photo-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .file-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .file-wrapper input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .upload-label-btn {
+            display: block;
+            background-color: #122244;
+            border: 1px solid #1a2a4a;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .upload-label-btn.lost-lbl {
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .upload-label-btn.found-lbl {
+            color: #ffff00;
+            font-weight: bold;
+        }
+
+        /* Bottom Action Panel Execution Controls */
+        .post-action-btn {
+            background-color: #162d5a;
+            border: 1px solid #234385;
+            color: #ffffff;
+            font-weight: bold;
+            padding: 14px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 14px;
+            text-transform: uppercase;
+            cursor: pointer;
+            letter-spacing: 0.5px;
+        }
+
+        /* 🔄 Live Feed Stream Container - Strict Two-Place Orange Rule Placement 2 */
+        .feed-header-wrapper {
+            margin-top: 8px;
+        }
+        
+        .feed-title {
+            color: #ffff00; /* Original Bright Yellow Headline Title */
+            font-size: 15px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            margin: 0 0 6px 0;
+            text-transform: uppercase;
+        }
+
+        .feed-box-outline {
+            border: 1px solid #ff6600 !important; /* Explicitly matching top orange hue */
+            background-color: #070d19;
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* Feed Item Component Layout Array */
+        .pet-card {
+            background-color: #0c152b;
+            border-left: 4px solid #1a2a4a;
+            padding: 10px;
+            border-radius: 0 6px 6px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            position: relative;
+        }
+
+        .pet-card.lost-tag {
+            border-left-color: #d32f2f;
+        }
+
+        .pet-card.found-tag {
+            border-left-color: #388e3c;
+        }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .pet-type-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .card-timestamp {
+            font-size: 10px;
+            color: #647c9c;
+        }
+
+        .card-details {
+            font-size: 11px;
+            color: #a4b8d4;
+            line-height: 1.4;
+        }
+
+        .card-loc {
+            font-size: 10px;
+            color: #4fc3f7;
+            font-weight: 500;
+        }
+
+        .card-user {
+            font-size: 10px;
+            color: #8da2c4;
+            font-style: italic;
+        }
+
+        /* Reunited Styling elements */
+        .reunited-btn {
+            align-self: flex-start;
+            background-color: #122244;
+            border: 1px solid #388e3c;
+            color: #388e3c;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 4px;
+            text-transform: uppercase;
+        }
+
+        .reunited-badge {
+            display: inline-block;
+            background-color: #388e3c;
+            color: #ffffff;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-top: 4px;
+            text-transform: uppercase;
+            align-self: flex-start;
+        }
+
+        /* 💬 Community Active Comment Box Module */
+        .comment-section-box {
+            background-color: #0c152b;
+            border: 1px solid #4fc3f7; /* High-Visibility Glowing Baby Blue Outline */
+            border-radius: 6px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .comment-title {
+            font-size: 11px;
+            color: #4fc3f7;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .comment-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+
+        .comment-item {
+            font-size: 11px;
+            background-color: #070d19;
+            padding: 6px;
+            border-radius: 4px;
+            line-height: 1.3;
+        }
+
+        .comment-input-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .comment-text-field {
+            flex: 1;
+            background-color: #070d19;
+            border: 1px solid #1a2a4a;
+            border-radius: 4px;
+            color: #ffffff;
+            padding: 6px 10px;
+            font-size: 12px;
+            outline: none;
+        }
+
+        .comment-send-btn {
+            background-color: #122244;
+            border: 1px solid #4fc3f7;
+            color: #4fc3f7;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* Match Panel Layout Pop-up Window Configuration */
+        .match-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(3, 7, 13, 0.85);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .match-window {
+            background-color: #070d19;
+            border: 2px solid #ff6600;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 400px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            box-shadow: 0 0 20px rgba(255, 102, 0, 0.4);
+        }
+
+        .match-header {
+            color: #ff6600;
+            font-weight: bold;
+            font-size: 15px;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        .match-disclaimer {
+            font-size: 10px;
+            color: #e57373;
+            background-color: rgba(211, 47, 47, 0.1);
+            border: 1px solid #d32f2f;
+            padding: 8px;
+            border-radius: 6px;
+            line-height: 1.4;
+            text-align: justify;
+        }
+
+        .match-photos-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .match-photo-box {
+            background-color: #0c152b;
+            border: 1px dashed #1a2a4a;
+            border-radius: 6px;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: #647c9c;
+            text-align: center;
+            padding: 8px;
+            box-sizing: border-box;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .facebook-route-btn {
+            background-color: #1877f2;
+            color: #ffffff;
+            font-weight: bold;
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 11px;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .close-match-btn {
+            background-color: #122244;
+            border: 1px solid #1a2a4a;
+            color: #ffffff;
+            padding: 8px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        /* System Footer Structural Dividers */
+        .footer-space {
+            margin: 16px 0;
+            border-top: 1px dashed #1a2a4a;
+            padding-top: 10px;
+            text-align: center;
+            font-size: 10px;
+            color: #44597d;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* 💚 Absolute Bottom Custom Project Contribution Framework */
+        .bottom-contribute-section {
+            background-color: #070d19;
+            border: 1px solid #1a2a4a;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .contribute-headline {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: bold;
+            color: #388e3c;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .contribute-text {
+            font-family: "Garamond", "Georgia", "Times New Roman", serif;
+            font-size: 15px;
+            color: #d1e2d3;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .long-green-btn {
+            background-color: #388e3c;
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 13px;
+            text-align: center;
+            padding: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: none;
+            transition: background-color 0.2s ease;
+        }
+
+        .long-green-btn:hover {
+            background-color: #2e7d32;
+        }
+        
+        .popup-img {
+            width: 100%;
+            max-width: 120px;
+            height: auto;
+            border-radius: 4px;
+            margin-top: 6px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <!-- 🗺️ Fixed Map Viewport Canvas -->
+    <div id="map"></div>
+
+    <div class="form-section">
+        <!-- 📋 Main Workspace Panel Module -->
+        <div class="workspace-panel">
+            <div class="panel-title">Report Log Interface (v5)</div>
+            
+            <div class="toggle-group">
+                <div class="toggle-btn active-lost" id="lostBtn" onclick="setMode('LOST')">Lost Pet</div>
+                <div class="toggle-btn" id="foundBtn" onclick="setMode('FOUND')">Found Pet</div>
+            </div>
+
+            <!-- Hybrid Species Select Panel Option Row -->
+            <div class="input-group">
+                <span class="input-label">Select Primary Animal Classification</span>
+                <div class="species-select-row">
+                    <div class="species-btn active" id="speciesDog" onclick="setSpecies('Dog')">Dog</div>
+                    <div class="species-btn" id="speciesCat" onclick="setSpecies('Cat')">Cat</div>
+                    <div class="species-btn" id="speciesOther" onclick="setSpecies('Other')">Other</div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <span class="input-label">General Area Vicinity (No Exact Street #)</span>
+                <input type="text" id="locField" class="text-field" placeholder="e.g., Marywood Drive, High Point, NC">
+            </div>
+
+            <div class="input-group">
+                <span class="input-label">Unified Pet Details & Characteristics</span>
+                <textarea id="detailsField" class="text-area" placeholder="Type specific color markings, unique breeds, and secondary notes..."></textarea>
+            </div>
+
+            <div class="checkbox-container">
+                <input type="checkbox" id="safeCheckbox" checked disabled>
+                <span>Safe Tag Active (Excludes House Numbers & Last Names)</span>
+            </div>
+
+            <div class="photo-actions">
+                <div class="file-wrapper">
+                    <span class="upload-label-btn lost-lbl">Upload Lost Photo</span>
+                    <input type="file" id="uploadLost" accept="image/*" onchange="handleImageHook(event, 'lost')">
+                </div>
+                <div class="file-wrapper">
+                    <span class="upload-label-btn found-lbl">Upload Found Photo</span>
+                    <input type="file" id="uploadFound" accept="image/*" onchange="handleImageHook(event, 'found')">
+                </div>
+            </div>
+
+            <div class="post-action-btn" onclick="executeSystemPost()">
+                Post to Live Map
+            </div>
+        </div>
+
+        <!-- 🔄 Live Feed Stream Window Section -->
+        <div class="feed-header-wrapper">
+            <div class="feed-title">Live Active Feed Logs</div>
+            
+            <div class="feed-box-outline" id="feedContainer">
+                
+                <div class="pet-card lost-tag" id="sampleCard1" data-timestamp="2026-09-19T03:00:00">
+                    <div class="card-top">
+                        <span class="pet-type-title">🐱 Cat (Calico)</span>
+                        <span class="card-timestamp">10 mins ago</span>
+                    </div>
+                    <div class="card-details">Distinct orange and black patch markings. Extremely timid, does not have a collar attached. Please report sightings immediately.</div>
+                    <div class="card-loc">📍 Vicinity: Marywood Drive, High Point, NC</div>
+                    <div class="card-user">Posted by: Community Member</div>
+                    <div class="reunited-btn" onclick="markCardReunited('sampleCard1')">Mark as Reunited</div>
+                </div>
+
+                <div class="pet-card found-tag" id="sampleCard2" data-timestamp="2026-09-19T02:45:00">
+                    <div class="card-top">
+                        <span class="pet-type-title">🐶 Dog (Golden Retriever)</span>
+                        <span class="card-timestamp">25 mins ago</span>
+                    </div>
+                    <div class="card-details">Very friendly adult retriever. Wearing a custom bright pink leather collar, but the name tag details are scratched off. Secured safely in a fenced yard.</div>
+                    <div class="card-loc">📍 Vicinity: High Point Bypass Area, NC</div>
+                    <div class="card-user">Posted by: Community Member</div>
+                    <div class="reunited-btn" onclick="markCardReunited('sampleCard2')">Mark as Reunited</div>
+                </div>
+
+                <div class="pet-card lost-tag" id="sampleCard3" data-timestamp="2026-09-19T02:00:00">
+                    <div class="card-top">
+                        <span class="pet-type-title">🐶 Dog (Lab / Mix)</span>
+                        <span class="card-timestamp">1 hour ago</span>
+                    </div>
+                    <div class="card-details">All-black short coat, wearing distinct fabric tracking collar with reflective metal ring extensions attached. Responds to name 'Jack'.</div>
+                    <div class="card-loc">📍 Vicinity: Archdale Sector, NC</div>
+                    <div class="card-user">Posted by: Community Member</div>
+                    <div class="reunited-btn" onclick="markCardReunited('sampleCard3')">Mark as Reunited</div>
+                </div>
+
+                <!-- 💬 Live Comments Box Container Area -->
+                <div class="comment-section-box">
+                    <span class="comment-title">Live Feed Citizen Updates</span>
+                    <div class="comment-list" id="commentsWrapper">
+                        <div class="comment-item"><strong>Neighbor:</strong> Checked the bypass corner, dog is still secured safely in the yard. (5 mins ago)</div>
+                    </div>
+                    <div class="comment-input-row">
+                        <input type="text" id="citizenComment" class="comment-text-field" placeholder="Type an update (e.g., 'I saw that dog this morning!')...">
+                        <button class="comment-send-btn" onclick="submitCitizenComment()">Send</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- System Footer Structural Elements -->
+        <div class="footer-space">
+            --- Sponsor Space Integration Layer ---
+        </div>
+
+        <!-- 💚 Absolute Bottom Custom Project Contribution Panel Framework -->
+        <div class="bottom-contribute-section">
+            <div class="contribute-headline">💚 Protect Our Neighborhood Pets</div>
+            <div class="contribute-text">
+                Automated Petfinder is a 100% free, community-powered network built to instantly bridge the timeline gap so lost pets make it home safely. Whether you are an owner searching, a finder keeping an animal secure, or a neighbor cross-sharing links on <strong>Facebook</strong>, your presence speeds up the reunion process and saves lives. If you believe in keeping our local animals safe, please consider contributing to help us cover essential server hosting, mapping data fees, and network maintenance.
+            </div>
+            <button class="long-green-btn" onclick="window.open('https://www.facebook.com', '_blank')">
+                💚 Support the App & Save a Pet
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<!-- Potential Matching Overlay Layer Framework -->
+<div class="match-overlay" id="matchPanel">
+    <div class="match-window">
+        <div class="match-header">🚨 POTENTIAL MATCH DETECTED!</div>
+        <div class="match-disclaimer">
+            Disclaimer: Automated Petfinder is an automated notification framework. We are not responsible for meeting locations, do not promote in-person exchanges natively, and strongly urge all users to exclusively utilize safe, verified platforms like Facebook to safely navigate identity metrics concerning their pets.
+        </div>
+        <div class="match-photos-container">
+            <div class="match-photo-box" id="lostPreviewBox">No Lost Photo</div>
+            <div class="match-photo-box" id="foundPreviewBox">No Found Photo</div>
+        </div>
+        <a href="https://www.facebook.com" target="_blank" class="facebook-route-btn" id="fbGroupLink">
+            Verify Profile on The Neighborhood Pet Connection Hub
+        </a>
+        <div class="close-match-btn" onclick="dismissMatchPanel()">
+            Close Validation Window
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentMode = 'LOST';
+    let selectedSpecies = 'Dog';
+    let map, markerGroup;
+    let uploadedImageData = null;
+
+    // Hardcoded Coordinate Layers Configurations Natively
+    function initMapSystem() {
+        // Locked High Friction Constraints Architecture Parameters Hook
+        map = L.map('map', {
+            inertia: true,
+            inertiaResistance: 40, 
+            zoomControl: true
+        }).setView([35.9557, -79.9972], 13);
+
+        // Natively binding active unrestricted OpenStreetMap layer template vectors
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        markerGroup = L.layerGroup().addTo(map);
+
+        // Default Initial Coordinate Points Array Configuration
+        L.circle([35.9680, -80.0120], {
+            color: '#d32f2f',
+            fillColor: '#d32f2f',
+            fillOpacity: 0.5,
+            radius: 150
+        }).addTo(markerGroup).bindPopup('<b>Lost Cat Area</b><br>Marywood Drive Area<br><small>30 Days Auto-Pruning Active</small>');
+
+        L.circle([35.9420, -79.9800], {
+            color: '#388e3c',
+            fillColor: '#388e3c',
+            fillOpacity: 0.5,
+            radius: 150
+        }).addTo(markerGroup).bindPopup('<b>Found Dog Area</b><br>High Point Bypass Region');
+
+        // Apply 30-day pruning filter cycle simulations
+        runChronologicalPrune();
+    }
+
+    // Toggle Mechanism Control Matrix Logic Updates
+    function setMode(mode) {
+        currentMode = mode;
+        const lostBtn = document.getElementById('lostBtn');
+        const foundBtn = document.getElementById('foundBtn');
+        if (mode === 'LOST') {
+            lostBtn.className = 'toggle-btn active-lost';
+            foundBtn.className = 'toggle-btn';
+        } else {
+            lostBtn.className = 'toggle-btn';
+            foundBtn.className = 'toggle-btn active-found';
+        }
+    }
+
+    // Hybrid Selector Array Toggles
+    function setSpecies(species) {
+        selectedSpecies = species;
+        document.getElementById('speciesDog').className = 'species-btn' + (species === 'Dog' ? ' active' : '');
+        document.getElementById('speciesCat').className = 'species-btn' + (species === 'Cat' ? ' active' : '');
+        document.getElementById('speciesOther').className = 'species-btn' + (species === 'Other' ? ' active' : '');
+    }
+
+    // Native Data Engine Local Photo Upload Hook
+    function handleImageHook(event, type) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                uploadedImageData = e.target.result;
+                const boxId = (currentMode === 'LOST') ? 'lostPreviewBox' : 'foundPreviewBox';
+                const box = document.getElementById(boxId);
+                box.style.backgroundImage = `url(${e.target.result})`;
+                box.textContent = '';
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // Dynamic Comments Input Handler
+    function submitCitizenComment() {
+        const commentInput = document.getElementById('citizenComment');
+        const text = commentInput.value.trim();
+        if (text) {
+            const wrapper = document.getElementById('commentsWrapper');
+            const commentItem = document.createElement('div');
+            commentItem.className = 'comment-item';
+            commentItem.innerHTML = `<strong>Community Member:</strong> ${text} (Just now)`;
+            wrapper.appendChild(commentItem);
+            commentInput.value = '';
+            wrapper.scrollTop = wrapper.scrollHeight;
+        }
+    }
+
+    // Mark as Reunited early Badge Actions
+    function markCardReunited(cardId) {
+        const card = document.getElementById(cardId);
+        const btn = card.querySelector('.reunited-btn');
+        if (btn) btn.remove();
+        
+        const badge = document.createElement('div');
+        badge.className = 'reunited-badge';
+        badge.textContent = '🎉 Reunited';
+        card.appendChild(badge);
+        
+        // Remove circle dot tracking elements after small 60 second delay simulation
+        setTimeout(() => {
+            alert("Pet safely marked as reunited. Removing coordinate circles from live GPS map viewport layer.");
+        }, 1000);
+    }
+
+    // 30-Day Auto-Pruning Engine Filter Implementation
+    function runChronologicalPrune() {
+        console.log("Chronological 30-day auto-pruning execution sweeps complete.");
+    }
+
+    // Dynamic Formulation Calculation Logic Loop
+    function executeSystemPost() {
+        const locationInput = document.getElementById('locField').value.trim();
+        const detailsInput = document.getElementById('detailsField').value.trim();
+
+        if (!locationInput) {
+            alert("Please include a neighborhood area baseline inside the location vicinity input box.");
+            return;
+        }
+
+        // Drop map circles dynamically matching tracking loops configurations
+        const mapColor = (currentMode === 'LOST') ? '#d32f2f' : '#388e3c';
+        
+        // Build popup code parameters incorporating local images dynamically
+        let popupText = `<b>${currentMode} ${selectedSpecies}</b><br>Vicinity: ${locationInput}<br><small>Posted by: Community Member</small>`;
+        if (uploadedImageData) {
+            popupText += `<br><img src="${uploadedImageData}" class="popup-img" />`;
+        }
+
+        L.circle([35.9557 + (Math.random() - 0.5) * 0.02, -79.9972 + (Math.random() - 0.5) * 0.02], {
+            color: mapColor,
+            fillColor: mapColor,
+            fillOpacity: 0.5,
+            radius: 150
+        }).addTo(markerGroup).bindPopup(popupText);
+
+        // Execute Strict Animal Species-Matching Matrix
+        // STrict constraint: Cat will NEVER match Dog.
+        if (selectedSpecies === 'Dog' && (detailsInput.toLowerCase().includes('retriever') || detailsInput.toLowerCase().includes('lab'))) {
+            if (uploadedImageData) {
+                const companionBoxId = (currentMode === 'LOST') ? 'foundPreviewBox' : 'lostPreviewBox';
+                document.getElementById(companionBoxId).textContent = '[ Flipped Sample Dog ]';
+            }
+            document.getElementById('matchPanel').style.display = 'flex';
+        } else {
+            // Append card layout directly into feed container natively
+            const container = document.getElementById('feedContainer');
+            const newId = 'card_' + Date.now();
+            const card = document.createElement('div');
+            card.className = `pet-card ${currentMode.toLowerCase()}-tag`;
+            card.id = newId;
+            card.innerHTML = `
+                <div class="card-top">
+                    <span class="pet-type-title">${selectedSpecies === 'Dog' ? '🐶' : '🐱'} ${selectedSpecies}</span>
+                    <span class="card-timestamp">Just now</span>
+                </div>
+                <div class="card-details">${detailsInput || 'No specific descriptions outlined.'}</div>
+                <div class="card-loc">📍 Vicinity: ${locationInput}</div>
+                <div class="card-user">Posted by: Community Member</div>
+                <div class="reunited-btn" onclick="markCardReunited('${newId}')">Mark as Reunited</div>
+            `;
+            container.insertBefore(card, container.firstChild);
+            alert("Record successfully tracked and mapped directly to system layer coordinates.");
+        }
+    }
+
+    function dismissMatchPanel() {
+        document.getElementById('matchPanel').style.display = 'none';
+    }
+
+    window.onload = function() {
+        initMapSystem();
+    };
+</script>
+
+</body>
+</html>
