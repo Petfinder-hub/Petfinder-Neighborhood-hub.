@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Version Control Pairing Tag: v5 -->
-    <title>Automated Petfinder v5 - Neighborhood Hub</title>
+    <!-- Version Control Pairing Tag: v6 -->
+    <title>Automated Petfinder v6 - Neighborhood Hub</title>
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <!-- Leaflet JS -->
@@ -29,7 +29,7 @@
             box-sizing: border-box;
         }
 
-        /* 🗺️ Fixed Map Viewport */
+        /* ðŸ—ºï¸ Fixed Map Viewport */
         #map {
             width: 100%;
             height: 300px !important;
@@ -45,7 +45,7 @@
             gap: 16px;
         }
 
-        /* 📋 Main Interface Workspace Frame - Reverted to Premium Dark Blue Template */
+        /* ðŸ“‹ Main Interface Workspace Frame - Reverted to Premium Dark Blue Template */
         .workspace-panel {
             background-color: #070d19;
             border: 2px solid #1a2a4a;
@@ -65,7 +65,43 @@
             text-transform: uppercase;
         }
 
-        /* 🔄 Dynamic Toggle Controls - Strict Two-Place Orange Rule Placement 1 */
+        /* ðŸ” Required Security Access Matrix Gate styling */
+        .auth-gate-box {
+            background-color: #0c152b;
+            border: 1px solid #234385;
+            border-radius: 6px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .auth-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .auth-method-btn {
+            background-color: #070d19;
+            border: 1px solid #1a2a4a;
+            color: #8da2c4;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .auth-method-btn.selected {
+            border-color: #4fc3f7;
+            color: #ffffff;
+            background-color: #122244;
+        }
+
+        /* ðŸ”„ Dynamic Toggle Controls - Strict Two-Place Orange Rule Placement 1 */
         .toggle-group {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -125,7 +161,7 @@
             background-color: #122244;
         }
 
-        /* 📝 Text Data Inputs - Premium Dark Blue Layout Bounds */
+        /* ðŸ“ Text Data Inputs - Premium Dark Blue Layout Bounds */
         .input-group {
             display: flex;
             flex-direction: column;
@@ -251,7 +287,7 @@
             letter-spacing: 0.5px;
         }
 
-        /* 🔄 Live Feed Stream Container - Strict Two-Place Orange Rule Placement 2 */
+        /* ðŸ”„ Live Feed Stream Container - Strict Two-Place Orange Rule Placement 2 */
         .feed-header-wrapper {
             margin-top: 8px;
         }
@@ -358,7 +394,7 @@
             align-self: flex-start;
         }
 
-        /* 💬 Community Active Comment Box Module */
+        /* ðŸ’¬ Community Active Comment Box Module */
         .comment-section-box {
             background-color: #0c152b;
             border: 1px solid #4fc3f7; /* High-Visibility Glowing Baby Blue Outline */
@@ -528,7 +564,7 @@
             text-transform: uppercase;
         }
 
-        /* 💚 Absolute Bottom Custom Project Contribution Framework */
+        /* ðŸ’š Absolute Bottom Custom Project Contribution Framework */
         .bottom-contribute-section {
             background-color: #070d19;
             border: 1px solid #1a2a4a;
@@ -592,20 +628,29 @@
 <body>
 
 <div class="app-container">
-    <!-- 🗺️ Fixed Map Viewport Canvas -->
+    <!-- ðŸ—ºï¸ Fixed Map Viewport Canvas -->
     <div id="map"></div>
 
     <div class="form-section">
-        <!-- 📋 Main Workspace Panel Module -->
         <div class="workspace-panel">
-            <div class="panel-title">Report Log Interface (v5)</div>
+            <div class="panel-title">Report Log Interface (v6)</div>
             
+            <div class="auth-gate-box">
+                <span class="input-label" style="color: #4fc3f7; font-weight: bold;">Step 1: Network Identification Required</span>
+                <div class="auth-row">
+                    <div class="auth-method-btn selected" id="authFB" onclick="switchAuthMode('FB')">Facebook Login</div>
+                    <div class="auth-method-btn" id="authEmail" onclick="switchAuthMode('EMAIL')">Email Alerts</div>
+                </div>
+                <div id="authInputFieldWrapper" class="input-group" style="gap: 2px;">
+                    <input type="text" id="authField" class="text-field" placeholder="Logged into Facebook as Profile User..." readonly style="opacity: 0.7; cursor: not-allowed; font-size: 12px;">
+                </div>
+            </div>
+
             <div class="toggle-group">
                 <div class="toggle-btn active-lost" id="lostBtn" onclick="setMode('LOST')">Lost Pet</div>
                 <div class="toggle-btn" id="foundBtn" onclick="setMode('FOUND')">Found Pet</div>
             </div>
 
-            <!-- Hybrid Species Select Panel Option Row -->
             <div class="input-group">
                 <span class="input-label">Select Primary Animal Classification</span>
                 <div class="species-select-row">
@@ -646,46 +691,43 @@
             </div>
         </div>
 
-        <!-- 🔄 Live Feed Stream Window Section -->
         <div class="feed-header-wrapper">
             <div class="feed-title">Live Active Feed Logs</div>
             
             <div class="feed-box-outline" id="feedContainer">
-                
                 <div class="pet-card lost-tag" id="sampleCard1" data-timestamp="2026-09-19T03:00:00">
                     <div class="card-top">
-                        <span class="pet-type-title">🐱 Cat (Calico)</span>
+                        <span class="pet-type-title">ðŸ± Cat (Calico)</span>
                         <span class="card-timestamp">10 mins ago</span>
                     </div>
                     <div class="card-details">Distinct orange and black patch markings. Extremely timid, does not have a collar attached. Please report sightings immediately.</div>
-                    <div class="card-loc">📍 Vicinity: Marywood Drive, High Point, NC</div>
-                    <div class="card-user">Posted by: Community Member</div>
+                    <div class="card-loc">ðŸ“ Vicinity: Marywood Drive, High Point, NC</div>
+                    <div class="card-user">Verified Profile via Facebook connection</div>
                     <div class="reunited-btn" onclick="markCardReunited('sampleCard1')">Mark as Reunited</div>
                 </div>
 
                 <div class="pet-card found-tag" id="sampleCard2" data-timestamp="2026-09-19T02:45:00">
                     <div class="card-top">
-                        <span class="pet-type-title">🐶 Dog (Golden Retriever)</span>
+                        <span class="pet-type-title">ðŸ¶ Dog (Golden Retriever)</span>
                         <span class="card-timestamp">25 mins ago</span>
                     </div>
                     <div class="card-details">Very friendly adult retriever. Wearing a custom bright pink leather collar, but the name tag details are scratched off. Secured safely in a fenced yard.</div>
-                    <div class="card-loc">📍 Vicinity: High Point Bypass Area, NC</div>
-                    <div class="card-user">Posted by: Community Member</div>
+                    <div class="card-loc">ðŸ“ Vicinity: High Point Bypass Area, NC</div>
+                    <div class="card-user">Verified Profile via Facebook connection</div>
                     <div class="reunited-btn" onclick="markCardReunited('sampleCard2')">Mark as Reunited</div>
                 </div>
 
                 <div class="pet-card lost-tag" id="sampleCard3" data-timestamp="2026-09-19T02:00:00">
                     <div class="card-top">
-                        <span class="pet-type-title">🐶 Dog (Lab / Mix)</span>
+                        <span class="pet-type-title">ðŸ¶ Dog (Lab / Mix)</span>
                         <span class="card-timestamp">1 hour ago</span>
                     </div>
                     <div class="card-details">All-black short coat, wearing distinct fabric tracking collar with reflective metal ring extensions attached. Responds to name 'Jack'.</div>
-                    <div class="card-loc">📍 Vicinity: Archdale Sector, NC</div>
-                    <div class="card-user">Posted by: Community Member</div>
+                    <div class="card-loc">ðŸ“ Vicinity: Archdale Sector, NC</div>
+                    <div class="card-user">Verified Profile via Facebook connection</div>
                     <div class="reunited-btn" onclick="markCardReunited('sampleCard3')">Mark as Reunited</div>
                 </div>
 
-                <!-- 💬 Live Comments Box Container Area -->
                 <div class="comment-section-box">
                     <span class="comment-title">Live Feed Citizen Updates</span>
                     <div class="comment-list" id="commentsWrapper">
@@ -696,33 +738,28 @@
                         <button class="comment-send-btn" onclick="submitCitizenComment()">Send</button>
                     </div>
                 </div>
-
             </div>
         </div>
 
-        <!-- System Footer Structural Elements -->
         <div class="footer-space">
             --- Sponsor Space Integration Layer ---
         </div>
 
-        <!-- 💚 Absolute Bottom Custom Project Contribution Panel Framework -->
         <div class="bottom-contribute-section">
-            <div class="contribute-headline">💚 Protect Our Neighborhood Pets</div>
+            <div class="contribute-headline">ðŸ’š Protect Our Neighborhood Pets</div>
             <div class="contribute-text">
                 Automated Petfinder is a 100% free, community-powered network built to instantly bridge the timeline gap so lost pets make it home safely. Whether you are an owner searching, a finder keeping an animal secure, or a neighbor cross-sharing links on <strong>Facebook</strong>, your presence speeds up the reunion process and saves lives. If you believe in keeping our local animals safe, please consider contributing to help us cover essential server hosting, mapping data fees, and network maintenance.
             </div>
             <button class="long-green-btn" onclick="window.open('https://www.facebook.com', '_blank')">
-                💚 Support the App & Save a Pet
+                ðŸ’š Support the App & Save a Pet
             </button>
         </div>
-
     </div>
 </div>
 
-<!-- Potential Matching Overlay Layer Framework -->
 <div class="match-overlay" id="matchPanel">
     <div class="match-window">
-        <div class="match-header">🚨 POTENTIAL MATCH DETECTED!</div>
+        <div class="match-header">ðŸš¨ POTENTIAL MATCH DETECTED!</div>
         <div class="match-disclaimer">
             Disclaimer: Automated Petfinder is an automated notification framework. We are not responsible for meeting locations, do not promote in-person exchanges natively, and strongly urge all users to exclusively utilize safe, verified platforms like Facebook to safely navigate identity metrics concerning their pets.
         </div>
@@ -742,19 +779,17 @@
 <script>
     let currentMode = 'LOST';
     let selectedSpecies = 'Dog';
+    let activeAuthMode = 'FB';
     let map, markerGroup;
     let uploadedImageData = null;
 
-    // Hardcoded Coordinate Layers Configurations Natively
     function initMapSystem() {
-        // Locked High Friction Constraints Architecture Parameters Hook
         map = L.map('map', {
             inertia: true,
             inertiaResistance: 40, 
             zoomControl: true
         }).setView([35.9557, -79.9972], 13);
 
-        // Natively binding active unrestricted OpenStreetMap layer template vectors
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -762,7 +797,6 @@
 
         markerGroup = L.layerGroup().addTo(map);
 
-        // Default Initial Coordinate Points Array Configuration
         L.circle([35.9680, -80.0120], {
             color: '#d32f2f',
             fillColor: '#d32f2f',
@@ -777,11 +811,34 @@
             radius: 150
         }).addTo(markerGroup).bindPopup('<b>Found Dog Area</b><br>High Point Bypass Region');
 
-        // Apply 30-day pruning filter cycle simulations
         runChronologicalPrune();
     }
 
-    // Toggle Mechanism Control Matrix Logic Updates
+    function switchAuthMode(mode) {
+        activeAuthMode = mode;
+        const btnFB = document.getElementById('authFB');
+        const btnEmail = document.getElementById('authEmail');
+        const field = document.getElementById('authField');
+
+        if (mode === 'FB') {
+            btnFB.className = 'auth-method-btn selected';
+            btnEmail.className = 'auth-method-btn';
+            field.value = 'Logged into Facebook as Profile User...';
+            field.placeholder = '';
+            field.readOnly = true;
+            field.style.opacity = '0.7';
+            field.style.cursor = 'not-allowed';
+        } else {
+            btnFB.className = 'auth-method-btn';
+            btnEmail.className = 'auth-method-btn selected';
+            field.value = '';
+            field.placeholder = 'Enter email address for match alerts...';
+            field.readOnly = false;
+            field.style.opacity = '1.0';
+            field.style.cursor = 'text';
+        }
+    }
+
     function setMode(mode) {
         currentMode = mode;
         const lostBtn = document.getElementById('lostBtn');
@@ -795,7 +852,6 @@
         }
     }
 
-    // Hybrid Selector Array Toggles
     function setSpecies(species) {
         selectedSpecies = species;
         document.getElementById('speciesDog').className = 'species-btn' + (species === 'Dog' ? ' active' : '');
@@ -803,7 +859,6 @@
         document.getElementById('speciesOther').className = 'species-btn' + (species === 'Other' ? ' active' : '');
     }
 
-    // Native Data Engine Local Photo Upload Hook
     function handleImageHook(event, type) {
         const file = event.target.files[0];
         if (file) {
@@ -819,7 +874,6 @@
         }
     }
 
-    // Dynamic Comments Input Handler
     function submitCitizenComment() {
         const commentInput = document.getElementById('citizenComment');
         const text = commentInput.value.trim();
@@ -834,7 +888,6 @@
         }
     }
 
-    // Mark as Reunited early Badge Actions
     function markCardReunited(cardId) {
         const card = document.getElementById(cardId);
         const btn = card.querySelector('.reunited-btn');
@@ -842,35 +895,37 @@
         
         const badge = document.createElement('div');
         badge.className = 'reunited-badge';
-        badge.textContent = '🎉 Reunited';
+        badge.textContent = 'ðŸŽ‰ Reunited';
         card.appendChild(badge);
         
-        // Remove circle dot tracking elements after small 60 second delay simulation
         setTimeout(() => {
             alert("Pet safely marked as reunited. Removing coordinate circles from live GPS map viewport layer.");
         }, 1000);
     }
 
-    // 30-Day Auto-Pruning Engine Filter Implementation
     function runChronologicalPrune() {
         console.log("Chronological 30-day auto-pruning execution sweeps complete.");
     }
 
-    // Dynamic Formulation Calculation Logic Loop
     function executeSystemPost() {
         const locationInput = document.getElementById('locField').value.trim();
         const detailsInput = document.getElementById('detailsField').value.trim();
+        const authValue = document.getElementById('authField').value.trim();
+
+        if (activeAuthMode === 'EMAIL' && (!authValue || !authValue.includes('@'))) {
+            alert("Please input a valid email alert notification address before posting to the live map.");
+            return;
+        }
 
         if (!locationInput) {
             alert("Please include a neighborhood area baseline inside the location vicinity input box.");
             return;
         }
 
-        // Drop map circles dynamically matching tracking loops configurations
         const mapColor = (currentMode === 'LOST') ? '#d32f2f' : '#388e3c';
+        const userLabel = (activeAuthMode === 'FB') ? 'Verified Facebook Profile User' : `Alert Registered: ${authValue}`;
         
-        // Build popup code parameters incorporating local images dynamically
-        let popupText = `<b>${currentMode} ${selectedSpecies}</b><br>Vicinity: ${locationInput}<br><small>Posted by: Community Member</small>`;
+        let popupText = `<b>${currentMode} ${selectedSpecies}</b><br>Vicinity: ${locationInput}<br><small>Posted by: ${userLabel}</small>`;
         if (uploadedImageData) {
             popupText += `<br><img src="${uploadedImageData}" class="popup-img" />`;
         }
@@ -882,8 +937,6 @@
             radius: 150
         }).addTo(markerGroup).bindPopup(popupText);
 
-        // Execute Strict Animal Species-Matching Matrix
-        // STrict constraint: Cat will NEVER match Dog.
         if (selectedSpecies === 'Dog' && (detailsInput.toLowerCase().includes('retriever') || detailsInput.toLowerCase().includes('lab'))) {
             if (uploadedImageData) {
                 const companionBoxId = (currentMode === 'LOST') ? 'foundPreviewBox' : 'lostPreviewBox';
@@ -891,7 +944,6 @@
             }
             document.getElementById('matchPanel').style.display = 'flex';
         } else {
-            // Append card layout directly into feed container natively
             const container = document.getElementById('feedContainer');
             const newId = 'card_' + Date.now();
             const card = document.createElement('div');
@@ -899,12 +951,12 @@
             card.id = newId;
             card.innerHTML = `
                 <div class="card-top">
-                    <span class="pet-type-title">${selectedSpecies === 'Dog' ? '🐶' : '🐱'} ${selectedSpecies}</span>
+                    <span class="pet-type-title">${selectedSpecies === 'Dog' ? 'ðŸ¶' : 'ðŸ±'} ${selectedSpecies}</span>
                     <span class="card-timestamp">Just now</span>
                 </div>
                 <div class="card-details">${detailsInput || 'No specific descriptions outlined.'}</div>
-                <div class="card-loc">📍 Vicinity: ${locationInput}</div>
-                <div class="card-user">Posted by: Community Member</div>
+                <div class="card-loc">ðŸ“ Vicinity: ${locationInput}</div>
+                <div class="card-user">Verified via: ${userLabel}</div>
                 <div class="reunited-btn" onclick="markCardReunited('${newId}')">Mark as Reunited</div>
             `;
             container.insertBefore(card, container.firstChild);
@@ -918,6 +970,7 @@
 
     window.onload = function() {
         initMapSystem();
+        switchAuthMode('FB');
     };
 </script>
 
